@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLICKXING</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--ink:#3d3a5c;
+--muted:#7b779c;
+--white:#ffffff;
+--line:#eee8fb;
+--blue:#6f8dff;
+--blue-deep:#4a66d8;
+--mint:#a8e6cf;
+--mint-deep:#7fcfae;
+--pink:#ffc2de;
+--butter:#fff1b8;
+--sky:#d9ecff;
+--lavender:#e9e1ff;
+}
+*{box-sizing:border-box}
+body{
+margin:0;color:var(--ink);
+font-family:'Fredoka','Nunito','Trebuchet MS','Arial Rounded MT Bold',Arial,sans-serif;
+background:
+radial-gradient(circle at 8% 8%,#ffd9e8 0,transparent 38%),
+radial-gradient(circle at 92% 12%,#d6ebff 0,transparent 38%),
+radial-gradient(circle at 12% 92%,#d8f6e4 0,transparent 38%),
+radial-gradient(circle at 92% 92%,#fff0c2 0,transparent 38%),
+#f8f4ff;
+background-attachment:fixed;
+min-height:100vh;
+}
+button,input{font:inherit}
+button{cursor:pointer;border:0;color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+header{min-height:72px;padding:10px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--white);position:sticky;top:0;z-index:5;box-shadow:0 4px 0 #f1ebff}
+header::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:4px;background:linear-gradient(90deg,#ffc2de,#ffe29a,#b8f0d4,#bcdcff,#d4c5ff)}
+.logo{font-size:27px;font-weight:700;letter-spacing:1px;color:var(--blue);cursor:pointer;user-select:none}
+.header-right{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.header-right button{padding:8px 14px;font-size:15px}
+
+.container{max-width:1150px;margin:34px auto;padding:0 18px}
+.card{background:var(--white);border:2px solid var(--line);border-radius:26px;padding:22px;margin-bottom:20px;box-shadow:0 6px 0 #ebe4fb}
+h1,h2,h3{margin-top:0}
+h1{font-size:28px}
+.muted{color:var(--muted)}
+
+button.primary,button.secondary,button.sound{padding:11px 20px;border-radius:16px;font-weight:600;transition:transform .08s,box-shadow .08s}
+button.primary{background:var(--blue);color:var(--white);box-shadow:0 4px 0 var(--blue-deep)}
+button.secondary{background:var(--mint);color:var(--ink);box-shadow:0 4px 0 var(--mint-deep)}
+button.sound{background:var(--butter);box-shadow:0 4px 0 #f0d77a;padding:8px 12px}
+button.primary:active,button.secondary:active,button.sound:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+input{width:100%;padding:13px 15px;border-radius:14px;border:2px solid #dcd3f7;background:#fbf9ff;color:var(--ink);margin:7px 0 14px}
+input:focus{border-color:var(--blue)}
+label{font-weight:500}
+.auth{max-width:420px;margin:50px auto}
+.auth button{width:100%;margin-top:10px}
+.hidden{display:none!important}
+body:not(.logged-in) .user-only{display:none!important}
+body.logged-in .guest-only{display:none!important}
+.title-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.title-actions{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:13px 10px;border-bottom:2px solid var(--line)}
+th{color:#8a7fc0;font-size:13px;font-weight:600}
+td{font-size:15px}
+tbody tr:nth-child(1) td{background:#fff8dc}
+tbody tr.me td{background:#eaf4ff}
+#leaderboard{overflow-x:auto}
+.rank{font-weight:700}
+.rank-unranked{color:#8a8fa8}
+.rank-iron{color:#6f7a8c}
+.rank-gold{color:#d18a00}
+.rank-emerald{color:#12a06a}
+.rank-diamond{color:#1290c8}
+.rank-netherite{color:#8a4fe0}
+.rank-semi{color:#ee5f3a}
+.rank-royale{color:#c47d00}
+
+.rank-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.rank-item{display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:22px;border:3px solid var(--white);box-shadow:0 4px 0 rgba(120,100,190,.14)}
+.rank-item:nth-child(5n+1){background:#e3f0ff}
+.rank-item:nth-child(5n+2){background:#fff3c9}
+.rank-item:nth-child(5n+3){background:#ffe3ef}
+.rank-item:nth-child(5n+4){background:#dff7ec}
+.rank-item:nth-child(5n+5){background:var(--lavender)}
+.rank-item.current{border-color:var(--blue);box-shadow:0 4px 0 var(--blue-deep)}
+.rank-item.locked .rank-icon{filter:grayscale(.7);opacity:.7}
+.rank-icon{min-width:110px;min-height:84px;padding:8px;border-radius:20px;background:var(--white);display:flex;align-items:center;justify-content:center}
+.pixel{image-rendering:pixelated;vertical-align:middle;max-width:100%}
+.rank-info h3{margin:0 0 4px;font-size:20px}
+.rank-info p{margin:2px 0;font-size:15px}
+.badge{display:inline-block;margin-left:6px;padding:2px 10px;border-radius:20px;background:var(--blue);color:var(--white);font-size:12px;font-weight:600;vertical-align:middle}
+.badge.done{background:var(--mint);color:var(--ink)}
+
+#clickButton{
+width:min(320px,78vw);height:min(320px,78vw);border-radius:50%;
+font-size:36px;font-weight:700;color:#4b3f8f;
+border:10px solid var(--white);
+background:radial-gradient(circle at 35% 25%,#ffffff 0,#ffd3e8 22%,#c5b3ff 65%,#9bbcff);
+box-shadow:0 10px 0 #cfc2f6,0 18px 30px rgba(130,110,200,.25);
+transition:transform .08s,box-shadow .08s;
+}
+#clickButton:active{transform:translateY(7px) scale(.97);box-shadow:0 3px 0 #cfc2f6,0 8px 16px rgba(130,110,200,.2)}
+.click-area{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:25px;text-align:center}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stat{padding:16px;border-radius:20px;border:2px solid var(--white);box-shadow:0 4px 0 rgba(120,100,190,.12)}
+.stat:nth-child(1){background:var(--sky)}
+.stat:nth-child(2){background:var(--butter)}
+.stat:nth-child(3){background:#ffe3ef}
+.stat small{color:var(--muted);font-weight:500}
+.stat strong{display:block;font-size:25px;margin-top:6px}
+
+.game-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px}
+.upgrade-box{border-radius:20px;padding:17px;margin:12px 0}
+.upgrade-box:nth-of-type(1){background:var(--lavender)}
+.upgrade-box:nth-of-type(2){background:#dff7ec}
+.upgrade-box p{margin:6px 0}
+.bar{height:16px;background:#ece7fb;border-radius:20px;overflow:hidden;margin-top:12px}
+.bar div{height:100%;background:linear-gradient(90deg,#ffb3d1,#ffe08a,#a9ecd0,#a9cdff);width:0%;border-radius:20px;transition:width .25s}
+
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--white);color:var(--ink);border:2px solid #cdbdff;padding:13px 22px;border-radius:18px;display:none;z-index:10;box-shadow:0 5px 0 #dcd0ff;max-width:90vw;text-align:center}
+
+.float-pop{position:fixed;z-index:20;pointer-events:none;font-weight:700;font-size:22px;color:var(--blue-deep);text-shadow:0 2px 0 #fff;animation:floatUp .9s ease-out forwards}
+@keyframes floatUp{
+0%{opacity:1;transform:translate(-50%,0) scale(.8)}
+100%{opacity:0;transform:translate(calc(-50% + var(--dx)),-90px) scale(1.2)}
+}
+@media(prefers-reduced-motion:reduce){.float-pop{animation:none;opacity:0}}
+@media(max-width:750px){
+.game-grid{grid-template-columns:1fr}
+.stats{grid-template-columns:1fr 1fr 1fr;gap:8px}
+.stat{padding:12px}.stat strong{font-size:19px}
+.rank-list{grid-template-columns:1fr}
+header{padding:10px 15px}
+.logo{font-size:21px}
+.title-actions{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo" onclick="goMenu()" title="Main Menu">⚡ CLICKXING</div>
+<div class="header-right">
+<button class="secondary guest-only" id="loginHeader" onclick="showAuth('login')">Login</button>
+<button class="primary guest-only" id="createHeader" onclick="showAuth('create')">Create</button>
+<button class="primary user-only" id="menuHeader" onclick="goMenu()">🏠 Main Menu</button>
+<button class="secondary" id="rankHeader" onclick="showRanks()">🏅 Rank</button>
+<button class="secondary user-only" id="logoutHeader" onclick="logout()">Logout</button>
+<button class="sound" id="soundBtn" data-sfx="own" onclick="toggleSound()" aria-label="Nyalakan atau matikan suara">🔊</button>
+</div>
+</header>
+
+<!-- HALAMAN UTAMA / LEADERBOARD -->
+<main class="container" id="homePage">
+<div class="card">
+<div class="title-row">
+<div>
+<h1>🏆 CLICKXING LEADERBOARD</h1>
+<p class="muted">Top 50 Clickers — compete to become Royale!</p>
+</div>
+<div class="title-actions">
+<div class="muted" id="refreshText">Refresh setiap 3 jam</div>
+<button class="primary user-only" onclick="goMenu()">🏠 Main Menu</button>
+</div>
+</div>
+<div id="leaderboard">
+<table>
+<thead><tr><th>#</th><th>Player</th><th>Rank</th><th>Total Click</th></tr></thead>
+<tbody id="leaderRows"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card title-row guest-only">
+<div>
+<h2>Ready to become the best? 🌟</h2>
+<p class="muted">Login atau buat akun untuk mulai mengumpulkan click.</p>
+</div>
+<button class="primary" onclick="showAuth('create')">Create Account →</button>
+</div>
+
+<div class="card title-row user-only">
+<div>
+<h2>Yuk lanjut main! 🎮</h2>
+<p class="muted">Kembali ke Main Menu untuk terus mengumpulkan click.</p>
+</div>
+<button class="primary" onclick="goMenu()">🏠 Main Menu</button>
+</div>
+</main>
+
+<!-- RANK -->
+<section class="container hidden" id="rankPage">
+<div class="card">
+<div class="title-row">
+<div>
+<h1>🏅 Tingkatan Rank</h1>
+<p class="muted" id="rankIntro">Kumpulkan click untuk naik rank dan dapat hadiah Maincoin!</p>
+</div>
+<div class="title-actions">
+<button class="primary user-only" onclick="goMenu()">🏠 Main Menu</button>
+<button class="secondary" onclick="goHome()">🏆 Leaderboard</button>
+</div>
+</div>
+<div class="rank-list" id="rankList" style="margin-top:18px"></div>
+</div>
+</section>
+
+<!-- LOGIN / CREATE -->
+<section class="container hidden" id="authPage">
+<div class="card auth">
+<h1 id="authTitle">Create Account</h1>
+<p class="muted" id="authDescription">Buat akun CLICKXING kamu.</p>
+<label for="usernameInput">Username</label>
+<input id="usernameInput" maxlength="18" placeholder="Masukkan username">
+<label for="passwordInput">Password</label>
+<input id="passwordInput" type="password" placeholder="Masukkan password">
+<button class="primary" id="authSubmit" data-sfx="own" onclick="submitAuth()">Create Account</button>
+<button class="secondary" onclick="goHome()">Kembali ke leaderboard</button>
+<p class="muted" style="font-size:12px;margin-top:15px">Akun demo tersimpan di browser ini. Jangan gunakan password penting atau password yang sama dengan akun lain.</p>
+</div>
+</section>
+
+<!-- GAME / MAIN MENU -->
+<section class="container hidden" id="gamePage">
+<div class="title-row">
+<div>
+<h1>Welcome, <span id="playerName">Player</span>! 👋</h1>
+<p class="muted">Keep clicking and climb the ranks.</p>
+</div>
+<div class="header-right">
+<button class="secondary" onclick="showRanks()">🏅 Rank</button>
+<button class="secondary" onclick="goHome()">🏆 Leaderboard</button>
+</div>
+</div>
+
+<div class="stats">
+<div class="stat"><small>TOTAL CLICKS</small><strong id="totalClicks">0</strong></div>
+<div class="stat"><small>MAINCOIN</small><strong id="coins">0</strong></div>
+<div class="stat"><small>CURRENT RANK</small><strong id="currentRank" class="rank">Unranked</strong></div>
+</div>
+
+<div class="game-grid" style="margin-top:18px">
+<div class="card click-area">
+<h2>CLICK TO EARN!</h2>
+<p class="muted">Setiap klik menghasilkan <b id="clickPower">1</b> click.</p>
+<button id="clickButton" data-sfx="own" onclick="manualClick(event)">CLICK!</button>
+<p id="clickMessage" class="muted">Let's go!</p>
+</div>
+
+<div class="card">
+<h2>⚙️ Upgrades</h2>
+<div class="upgrade-box">
+<h3>Multiple Click</h3>
+<p class="muted">Tingkatkan jumlah click setiap kali menekan tombol.</p>
+<p>Level: <b id="upgradeLevel">1</b> / 9</p>
+<p>Power: <b id="upgradePower">1x</b></p>
+<p>Harga: <b id="upgradeCost">25</b> Maincoin</p>
+<button class="primary" id="upgradeButton" data-sfx="own" onclick="buyUpgrade()">Upgrade</button>
+</div>
+
+<div class="upgrade-box">
+<h3>🤖 Auto Click</h3>
+<p class="muted">Aktifkan untuk mendapatkan click otomatis selama halaman game terbuka.</p>
+<p>Status: <b id="autoStatus">OFF</b></p>
+<button class="primary" id="autoButton" data-sfx="own" onclick="toggleAuto()">Start Auto Click</button>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>📈 Rank Progress</h2>
+<div class="title-row">
+<span id="nextRankText">Menuju Iron</span>
+<span id="progressNumbers">0 / 100</span>
+</div>
+<div class="bar"><div id="rankBar"></div></div>
+</div>
+</section>
+
+<div id="toast"></div>
+
+<script>
+const STORAGE_KEY='clickxing_accounts_v1';
+const SESSION_KEY='clickxing_session_v1';
+const REFRESH_KEY='clickxing_refresh_v1';
+const SOUND_KEY='clickxing_sound_v1';
+
+const ranks=[
+{name:'Unranked',min:1,cls:'rank-unranked',reward:0},
+{name:'Iron',min:100,cls:'rank-iron',reward:25},
+{name:'Gold',min:700,cls:'rank-gold',reward:25},
+{name:'Emerald',min:1200,cls:'rank-emerald',reward:50},
+{name:'Diamond',min:3000,cls:'rank-diamond',reward:100},
+{name:'Netherite I',min:7600,cls:'rank-netherite',reward:200},
+{name:'Netherite II',min:9300,cls:'rank-netherite',reward:200},
+{name:'Netherite III',min:12000,cls:'rank-netherite',reward:200},
+{name:'Semi Royale',min:20000,cls:'rank-semi',reward:500},
+{name:'Royale',min:50000,cls:'rank-royale',reward:1000}
+];
+
+const cheers=['Yeay! 🎉','Mantap! ⭐','Hebat! 💖','Keren! 🌈','Lanjut terus! 🚀','Wiii! ✨'];
+const sparkles=['⭐','💖','✨','🌈','🍭','🎈'];
+
+let accounts=loadAccounts();
+let currentUser=null;
+let autoTimer=null;
+let authMode='create';
+
+/* ART-START: simbol rank pixel art */
+const PAL={
+gray:{base:'#6b6f7f',light:'#9094a6',dark:'#4a4d5c',out:'#2b2d39'},
+silver:{base:'#c3c8d4',light:'#f0f2f7',dark:'#8e95a6',out:'#4a4f5e'},
+gold:{base:'#ffd23f',light:'#fff3a6',dark:'#e0a010',out:'#8a5a00'},
+emerald:{base:'#36d98a',light:'#a6f5cf',dark:'#14995c',out:'#0a5a37'},
+diamond:{base:'#4db8ff',light:'#b7e5ff',dark:'#2a7fd4',out:'#124a8a'},
+purple:{base:'#4a3366',light:'#7a5aa6',dark:'#2c1c42',out:'#120a1e'},
+fire:{out:'#6b1008'}
+};
+const PX_STAR=[
+'......X......',
+'.....XXX.....',
+'.....XXX.....',
+'....XXXXX....',
+'XXXXXXXXXXXXX',
+'.XXXXXXXXXXX.',
+'..XXXXXXXXX..',
+'...XXXXXXX...',
+'..XXXXXXXXX..',
+'..XXXXXXXXX..',
+'.XXXXX.XXXXX.',
+'.XXXX...XXXX.',
+'.XXX.....XXX.'];
+const PX_MINI=['..X..','.XXX.','XXXXX','.XXX.','XX.XX'];
+const PX_WING_L=['XXX.....','.XXXX...','XXXXXX..','.XXXXXXX','XXXXXXXX','..XXXXXX','.XXXXXXX','...XXXXX','..XXXXXX','....XXXX'];
+const PX_WING_R=PX_WING_L.map(r=>r.split('').reverse().join(''));
+const PX_CROWN=['X...X...X','XX.XXX.XX','XXXXXXXXX','XXXXXXXXX'];
+const QUESTION=[[9,11],[9,12],[9,13],[10,13],[11,12],[13,12]];
+
+function heatColor(r,c){
+const d=Math.hypot(c-6,(r-7)*0.9);
+return d<2.4?'#ffe066':d<4.8?'#ff9a2a':'#e8381b';
+}
+const fireStar={m:PX_STAR,x:6,y:5,fn:heatColor};
+const wispTop={m:['X.','XX'],x:12,y:3,fn:(r)=>r===0?'#e8381b':'#ff9a2a'};
+const wispL={m:['X.','XX'],x:6,y:7,fn:(r)=>r===0?'#e8381b':'#ff9a2a'};
+const wispR={m:['.X','XX'],x:17,y:7,fn:(r)=>r===0?'#e8381b':'#ff9a2a'};
+const wingL={m:PX_WING_L,x:0,y:4,pal:{base:'#ffd23f',light:'#fff3a6',dark:'#e0a010'}};
+const wingR={m:PX_WING_R,x:17,y:4,pal:{base:'#ffd23f',light:'#fff3a6',dark:'#e0a010'}};
+const crownColors=['#ff6a1f','#ff9a2a','#ffd23f','#e0a010'];
+const crown={m:PX_CROWN,x:8,y:1,fn:(r)=>crownColors[r]};
+const bigStar=p=>({m:PX_STAR,x:6,y:5,pal:PAL[p]});
+const miniFn=(r,c)=>(r===2&&c===2)?'#a98ad6':'#6a4a94';
+const miniL=p=>({m:PX_MINI,x:0,y:8,fn:miniFn});
+const miniR=p=>({m:PX_MINI,x:20,y:8,fn:miniFn});
+
+const ICONS={
+'Unranked':{out:PAL.gray.out,layers:[bigStar('gray')],marks:QUESTION.map(p=>[p[0],p[1],'#ffffff'])},
+'Iron':{out:PAL.silver.out,layers:[bigStar('silver')]},
+'Gold':{out:PAL.gold.out,layers:[bigStar('gold')]},
+'Emerald':{out:PAL.emerald.out,layers:[bigStar('emerald')]},
+'Diamond':{out:PAL.diamond.out,layers:[bigStar('diamond')]},
+'Netherite I':{out:PAL.purple.out,layers:[bigStar('purple')]},
+'Netherite II':{out:PAL.purple.out,layers:[miniL('purple'),bigStar('purple')]},
+'Netherite III':{out:PAL.purple.out,layers:[miniL('purple'),bigStar('purple'),miniR('purple')]},
+'Semi Royale':{out:PAL.fire.out,layers:[fireStar,wispTop,wispL,wispR]},
+'Royale':{out:PAL.fire.out,layers:[wingL,wingR,fireStar,crown]}
+};
+
+function iconSVG(name,unit){
+const def=ICONS[name];
+if(!def)return '';
+const px=new Map();
+const filled=new Set();
+def.layers.forEach(L=>{
+const set=new Set();
+const pts=[];
+L.m.forEach((row,r)=>{for(let c=0;c<row.length;c++){if(row[c]==='X'){pts.push([L.y+r,L.x+c]);set.add((L.y+r)+','+(L.x+c));}}});
+pts.forEach(p=>{
+const r=p[0],c=p[1];
+let col;
+if(L.fn){col=L.fn(r-L.y,c-L.x);}
+else{
+const lit=!set.has((r-1)+','+c)||!set.has(r+','+(c-1));
+const sh=!set.has((r+1)+','+c)||!set.has(r+','+(c+1));
+col=lit&&!sh?L.pal.light:(sh&&!lit?L.pal.dark:L.pal.base);
+}
+px.set(r+','+c,col);
+filled.add(r+','+c);
+});
+});
+(def.marks||[]).forEach(m=>px.set(m[0]+','+m[1],m[2]));
+const outline=[];
+filled.forEach(k=>{
+const rc=k.split(',').map(Number);
+[[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{
+const nk=(rc[0]+d[0])+','+(rc[1]+d[1]);
+if(!filled.has(nk))outline.push(nk);
+});
+});
+outline.forEach(k=>px.set(k,def.out));
+let minR=99,maxR=-99;
+const rows={};
+px.forEach((col,k)=>{
+const rc=k.split(',').map(Number);
+minR=Math.min(minR,rc[0]);maxR=Math.max(maxR,rc[0]);
+(rows[rc[0]]=rows[rc[0]]||[]).push([rc[1],col]);
+});
+let rects='';
+Object.keys(rows).forEach(r=>{
+const list=rows[r].sort((a,b)=>a[0]-b[0]);
+let i=0;
+while(i<list.length){
+let j=i;
+while(j+1<list.length&&list[j+1][0]===list[j][0]+1&&list[j+1][1]===list[i][1])j++;
+rects+='<rect x="'+list[i][0]+'" y="'+r+'" width="'+(j-i+1)+'" height="1" fill="'+list[i][1]+'"/>';
+i=j+1;
+}
+});
+const h=maxR-minR+1;
+return '<svg class="pixel" role="img" aria-label="'+name+'" viewBox="-1 '+minR+' 27 '+h+'" width="'+(27*unit)+'" height="'+(h*unit)+'" shape-rendering="crispEdges">'+rects+'</svg>';
+}
+/* ART-END */
+
+/* ================= SUARA / SFX (dibuat dengan Web Audio, tanpa file) ================= */
+let audioCtx=null;
+let soundOn=localStorage.getItem(SOUND_KEY)!=='off';
+
+function ac(){
+if(!soundOn)return null;
+try{
+if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+if(audioCtx.state==='suspended')audioCtx.resume();
+return audioCtx;
+}catch(e){return null}
+}
+
+function tone(freq,start,dur,opts){
+const o2=opts||{};
+const c=ac();
+if(!c)return;
+const t=c.currentTime+start;
+const osc=c.createOscillator();
+const gain=c.createGain();
+osc.type=o2.type||'sine';
+osc.frequency.setValueAtTime(freq,t);
+if(o2.slideTo)osc.frequency.exponentialRampToValueAtTime(o2.slideTo,t+dur);
+const vol=o2.vol||.18;
+gain.gain.setValueAtTime(0.0001,t);
+gain.gain.exponentialRampToValueAtTime(vol,t+0.015);
+gain.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+osc.connect(gain);
+gain.connect(c.destination);
+osc.start(t);
+osc.stop(t+dur+0.03);
+}
+
+const sfx={
+pop(){
+const f=520+Math.random()*420;
+tone(f,0,.12,{slideTo:f*1.8,vol:.2});
+tone(f*2,.03,.09,{type:'triangle',vol:.06});
+},
+boing(){tone(260,0,.18,{type:'triangle',slideTo:620,vol:.16})},
+success(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.08,.18,{type:'triangle',vol:.16}))},
+coin(){
+tone(988,0,.08,{type:'square',vol:.07});
+tone(1319,.08,.28,{type:'square',vol:.07});
+},
+error(){tone(420,0,.28,{slideTo:170,vol:.2})},
+rank(){[523,659,784,659,784,1047,1319].forEach((f,i)=>tone(f,i*.09,.2,{type:'triangle',vol:.16}))},
+on(){tone(520,0,.14,{type:'triangle',slideTo:900,vol:.16})},
+off(){tone(900,0,.14,{type:'triangle',slideTo:480,vol:.16})}
+};
+
+function updateSoundButton(){
+const b=$('soundBtn');
+b.textContent=soundOn?'🔊':'🔇';
+b.setAttribute('aria-pressed',String(!soundOn));
+}
+
+function toggleSound(){
+if(soundOn){
+sfx.off();
+soundOn=false;
+}else{
+soundOn=true;
+sfx.on();
+}
+localStorage.setItem(SOUND_KEY,soundOn?'on':'off');
+updateSoundButton();
+}
+
+/* Semua tombol biasa otomatis berbunyi "boing" lucu.
+   Tombol dengan data-sfx="own" memainkan suaranya sendiri. */
+document.addEventListener('click',e=>{
+const b=e.target.closest('button');
+if(!b||b.disabled||b.dataset.sfx==='own')return;
+sfx.boing();
+});
+
+function floatText(x,y,text){
+const el=document.createElement('div');
+el.className='float-pop';
+el.textContent=text;
+el.style.left=x+'px';
+el.style.top=y+'px';
+el.style.setProperty('--dx',(Math.random()*90-45)+'px');
+document.body.appendChild(el);
+setTimeout(()=>el.remove(),950);
+}
+
+/* ================= DATA ================= */
+function loadAccounts(){
+try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{}}
+catch(e){return {}}
+}
+
+function saveAccounts(){
+localStorage.setItem(STORAGE_KEY,JSON.stringify(accounts));
+}
+
+function rankInfo(clicks){
+let result=ranks[0];
+for(const rank of ranks){
+if(clicks>=rank.min) result=rank;
+}
+return result;
+}
+
+function nextRank(clicks){
+return ranks.find(r=>clicks<r.min)||null;
+}
+
+function showToast(message){
+const t=document.getElementById('toast');
+t.textContent=message;
+t.style.display='block';
+clearTimeout(showToast.timer);
+showToast.timer=setTimeout(()=>t.style.display='none',2300);
+}
+
+function showPage(id){
+['homePage','authPage','gamePage','rankPage'].forEach(p=>document.getElementById(p).classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
+if(id!=='gamePage')stopAuto();
+window.scrollTo(0,0);
+}
+
+function showAuth(mode){
+authMode=mode;
+$('authTitle').textContent=mode==='create'?'Create Account':'Login';
+$('authDescription').textContent=mode==='create'?'Buat akun CLICKXING kamu.':'Masuk ke akun CLICKXING kamu.';
+$('authSubmit').textContent=mode==='create'?'Create Account':'Login';
+$('usernameInput').value='';
+$('passwordInput').value='';
+showPage('authPage');
+}
+
+function $(id){return document.getElementById(id)}
+
+function hashPassword(password){
+/* Hash sederhana untuk demo lokal, bukan pengamanan akun produksi. */
+let h=2166136261;
+for(let i=0;i<password.length;i++){
+h^=password.charCodeAt(i);
+h=Math.imul(h,16777619);
+}
+return (h>>>0).toString(16);
+}
+
+function submitAuth(){
+const username=$('usernameInput').value.trim();
+const password=$('passwordInput').value;
+
+if(!/^[a-zA-Z0-9_]{3,18}$/.test(username)){
+sfx.error();
+showToast('Username harus 3–18 karakter: huruf, angka, atau _');
+return;
+}
+if(password.length<4){
+sfx.error();
+showToast('Password minimal 4 karakter.');
+return;
+}
+
+const key=username.toLowerCase();
+
+if(authMode==='create'){
+if(accounts[key]){
+sfx.error();
+showToast('Username sudah digunakan!');
+return;
+}
+accounts[key]={
+username:username,
+passwordHash:hashPassword(password),
+clicks:0,
+maincoin:0,
+upgradeLevel:1,
+claimedRanks:[]
+};
+saveAccounts();
+showToast('Akun berhasil dibuat! 🎉');
+}else{
+if(!accounts[key]||accounts[key].passwordHash!==hashPassword(password)){
+sfx.error();
+showToast('Username atau password salah!');
+return;
+}
+}
+
+sfx.success();
+loginUser(key);
+}
+
+function loginUser(key){
+currentUser=key;
+localStorage.setItem(SESSION_KEY,key);
+document.body.classList.add('logged-in');
+updateGame();
+renderLeaderboard();
+showPage('gamePage');
+}
+
+function logout(){
+stopAuto();
+currentUser=null;
+localStorage.removeItem(SESSION_KEY);
+document.body.classList.remove('logged-in');
+renderLeaderboard();
+showPage('homePage');
+}
+
+/* Ke halaman leaderboard */
+function goHome(){
+renderLeaderboard();
+showPage('homePage');
+}
+
+/* Ke Main Menu (halaman game jika sudah login) */
+function goMenu(){
+if(currentUser){
+updateGame();
+showPage('gamePage');
+}else{
+goHome();
+}
+}
+
+/* Halaman Rank */
+function renderRanks(){
+const user=getUser();
+const clicks=user?user.clicks:0;
+const current=user?rankInfo(clicks).name:null;
+$('rankIntro').textContent=user
+?'Total click kamu: '+clicks.toLocaleString('en-US')+'. Terus klik untuk naik rank!'
+:'Kumpulkan click untuk naik rank dan dapat hadiah Maincoin!';
+const list=$('rankList');
+list.innerHTML='';
+ranks.forEach(rank=>{
+const item=document.createElement('div');
+const reached=user&&clicks>=rank.min;
+item.className='rank-item'+(rank.name===current?' current':'')+(user&&!reached?' locked':'');
+
+const icon=document.createElement('div');
+icon.className='rank-icon';
+icon.innerHTML=iconSVG(rank.name,3.5);
+
+const info=document.createElement('div');
+info.className='rank-info';
+const title=document.createElement('h3');
+title.className=rank.cls;
+title.textContent=rank.name;
+if(rank.name===current){
+const b=document.createElement('span');
+b.className='badge';
+b.textContent='Rank kamu';
+title.appendChild(b);
+}else if(reached){
+const b=document.createElement('span');
+b.className='badge done';
+b.textContent='✓ Tercapai';
+title.appendChild(b);
+}
+const req=document.createElement('p');
+req.textContent=rank.min===1?'Syarat: mulai dari 1 click':'Syarat: '+rank.min.toLocaleString('en-US')+' click';
+info.append(title,req);
+if(rank.reward){
+const rw=document.createElement('p');
+rw.className='muted';
+rw.textContent='Hadiah: +'+rank.reward.toLocaleString('en-US')+' Maincoin 🪙';
+info.appendChild(rw);
+}
+item.append(icon,info);
+list.appendChild(item);
+});
+}
+
+function showRanks(){
+renderRanks();
+showPage('rankPage');
+}
+
+function getUser(){
+return currentUser?accounts[currentUser]:null;
+}
+
+function saveProgress(){
+saveAccounts();
+renderLeaderboard();
+}
+
+function upgradePower(){
+return getUser().upgradeLevel;
+}
+
+function upgradePrice(){
+return getUser().upgradeLevel*25;
+}
+
+function rankRewards(user){
+if(!user.claimedRanks)user.claimedRanks=[];
+for(const rank of ranks.slice(1)){
+if(user.clicks>=rank.min&&!user.claimedRanks.includes(rank.name)){
+user.claimedRanks.push(rank.name);
+user.maincoin+=rank.reward;
+sfx.rank();
+showToast('Rank baru: '+rank.name+'! Maincoin diperoleh! 🎉');
+}
+}
+}
+
+function addClicks(amount){
+const user=getUser();
+if(!user)return;
+const previousRank=rankInfo(user.clicks).name;
+user.clicks+=amount;
+rankRewards(user);
+const newRank=rankInfo(user.clicks).name;
+if(previousRank!==newRank){
+$('clickMessage').textContent='Rank Up! '+newRank+'! 🎊';
+}
+saveProgress();
+updateGame();
+}
+
+function manualClick(event){
+sfx.pop();
+const btn=$('clickButton');
+let x=event&&event.clientX,y=event&&event.clientY;
+if(!x&&!y){
+const r=btn.getBoundingClientRect();
+x=r.left+r.width/2;
+y=r.top+r.height/2;
+}
+floatText(x,y-20,'+'+upgradePower()+' '+sparkles[Math.floor(Math.random()*sparkles.length)]);
+$('clickMessage').textContent=cheers[Math.floor(Math.random()*cheers.length)];
+addClicks(upgradePower());
+}
+
+function buyUpgrade(){
+const user=getUser();
+if(!user)return;
+if(user.upgradeLevel>=9){
+sfx.error();
+showToast('Multiple Click sudah maksimal!');
+return;
+}
+const cost=upgradePrice();
+if(user.maincoin<cost){
+sfx.error();
+showToast('Maincoin tidak cukup!');
+return;
+}
+user.maincoin-=cost;
+user.upgradeLevel++;
+saveProgress();
+updateGame();
+sfx.coin();
+showToast('Upgrade berhasil! Power sekarang '+user.upgradeLevel+'x ⭐');
+}
+
+function toggleAuto(){
+if(autoTimer){
+sfx.off();
+stopAuto();
+return;
+}
+sfx.on();
+autoTimer=setInterval(()=>addClicks(upgradePower()),250);
+$('autoButton').textContent='Stop Auto Click';
+$('autoStatus').textContent='ON';
+$('autoStatus').style.color='#12a06a';
+}
+
+function stopAuto(){
+if(autoTimer){
+clearInterval(autoTimer);
+autoTimer=null;
+}
+if($('autoButton')){
+$('autoButton').textContent='Start Auto Click';
+$('autoStatus').textContent='OFF';
+$('autoStatus').style.color='';
+}
+}
+
+function updateGame(){
+const user=getUser();
+if(!user)return;
+$('playerName').textContent=user.username;
+$('totalClicks').textContent=user.clicks.toLocaleString('en-US');
+$('coins').textContent=user.maincoin.toLocaleString('en-US');
+const rank=rankInfo(user.clicks);
+$('currentRank').innerHTML=iconSVG(rank.name,1.8)+' '+rank.name;
+$('currentRank').className='rank '+rank.cls;
+$('clickPower').textContent=user.upgradeLevel;
+$('upgradeLevel').textContent=user.upgradeLevel;
+$('upgradePower').textContent=user.upgradeLevel+'x';
+$('upgradeCost').textContent=user.upgradeLevel>=9?'MAX':upgradePrice();
+$('upgradeButton').disabled=user.upgradeLevel>=9;
+$('upgradeButton').textContent=user.upgradeLevel>=9?'MAX LEVEL':'Upgrade';
+
+const next=nextRank(user.clicks);
+if(next){
+const previous=ranks[ranks.indexOf(next)-1];
+const start=previous?previous.min:1;
+const progress=Math.max(0,user.clicks-start);
+const required=next.min-start;
+$('nextRankText').textContent='Menuju '+next.name;
+$('progressNumbers').textContent=user.clicks.toLocaleString()+' / '+next.min.toLocaleString();
+$('rankBar').style.width=Math.min(100,progress/required*100)+'%';
+}else{
+$('nextRankText').textContent='🏆 RANK TERTINGGI: ROYALE';
+$('progressNumbers').textContent=user.clicks.toLocaleString()+' clicks';
+$('rankBar').style.width='100%';
+}
+}
+
+function renderLeaderboard(){
+const rows=Object.values(accounts)
+.sort((a,b)=>b.clicks-a.clicks||a.username.localeCompare(b.username))
+.slice(0,50);
+const tbody=$('leaderRows');
+tbody.innerHTML='';
+
+if(!rows.length){
+tbody.innerHTML='<tr><td colspan="4" class="muted">Belum ada akun. Jadilah pemain pertama!</td></tr>';
+return;
+}
+
+const medals=['🥇','🥈','🥉'];
+rows.forEach((player,index)=>{
+const rank=rankInfo(player.clicks);
+const tr=document.createElement('tr');
+if(currentUser&&player.username.toLowerCase()===currentUser)tr.className='me';
+const pos=document.createElement('td');
+const name=document.createElement('td');
+const rankCell=document.createElement('td');
+const clicks=document.createElement('td');
+pos.textContent=index<3?medals[index]:index+1;
+name.textContent=player.username;
+rankCell.innerHTML=iconSVG(rank.name,1.3)+' '+rank.name;
+rankCell.className='rank '+rank.cls;
+clicks.textContent=player.clicks.toLocaleString('en-US');
+tr.append(pos,name,rankCell,clicks);
+tbody.appendChild(tr);
+});
+}
+
+function refreshLeaderboard(){
+renderLeaderboard();
+localStorage.setItem(REFRESH_KEY,Date.now().toString());
+$('refreshText').textContent='Leaderboard diperbarui: '+new Date().toLocaleTimeString();
+}
+
+function checkLeaderboardRefresh(){
+const last=Number(localStorage.getItem(REFRESH_KEY)||0);
+const threeHours=3*60*60*1000;
+if(!last||Date.now()-last>=threeHours){
+refreshLeaderboard();
+}else{
+renderLeaderboard();
+const remaining=threeHours-(Date.now()-last);
+const hours=Math.floor(remaining/3600000);
+const minutes=Math.floor((remaining%3600000)/60000);
+$('refreshText').textContent='Refresh berikutnya dalam '+hours+'j '+minutes+'m';
+}
+}
+
+function init(){
+updateSoundButton();
+checkLeaderboardRefresh();
+const saved=localStorage.getItem(SESSION_KEY);
+if(saved&&accounts[saved]){
+loginUser(saved);
+}else{
+showPage('homePage');
+}
+}
+
+setInterval(()=>{
+const last=Number(localStorage.getItem(REFRESH_KEY)||0);
+if(Date.now()-last>=3*60*60*1000){
+refreshLeaderboard();
+}
+},30000);
+
+window.addEventListener('beforeunload',stopAuto);
+init();
+</script>
+</body>
+</html>
